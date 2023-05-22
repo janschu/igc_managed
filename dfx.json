@@ -1,0 +1,29 @@
+{
+  "canisters": {
+    "igc_managed_backend": {
+      "main": "src/igc_managed_backend/main.mo",
+      "type": "motoko"
+    },
+    "igc_managed_frontend": {
+      "dependencies": [
+        "igc_managed_backend"
+      ],
+      "frontend": {
+        "entrypoint": "src/igc_managed_frontend/src/index.html"
+      },
+      "source": [
+        "src/igc_managed_frontend/assets",
+        "dist/igc_managed_frontend/"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}
