@@ -1,5 +1,10 @@
 {
   "canisters": {
+    "internet-identity": {
+      "type": "custom",
+      "wasm": "src/internet_identity/internet_identity_dev.wasm.gz",
+      "candid": "src/internet_identity/internet_identity.did"
+    },
     "igc_managed_backend": {
       "main": "src/igc_managed_backend/main.mo",
       "type": "motoko"

@@ -1,0 +1,22 @@
+div #FlightMap {
+    min-height: 500px;}
+
+div #flight-list-group {
+        max-height: 450px;
+        margin-bottom: 10px;
+        overflow-y:auto;
+    }
+
+div #message {
+    display: inline;
+}
+
+div #debug {
+    display: inline;
+}
+
+
+
+
+
+

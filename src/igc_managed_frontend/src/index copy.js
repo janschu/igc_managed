@@ -3,10 +3,7 @@ import { AuthClient } from "@dfinity/auth-client";
 
 
 const init = async () => {
-  // to switch for local testing
   const testlocal = true;
-  const iProvider = "http://127.0.0.1:4943/?canisterId=be2us-64aaa-aaaaa-qaabq-cai";
-  // iProvider = "https://identity.ic0.app",
 
   var flightOverlay;
 
@@ -14,9 +11,9 @@ const init = async () => {
   const authClient = await AuthClient.create();
   // login elements
   const loginButton = document.getElementById("loginButton");
-    loginButton.addEventListener("click", login);
+  loginButton.addEventListener("click", login);
   const logoutButton = document.getElementById("logoutButton");
-    logoutButton.addEventListener("click", logout);
+  logoutButton.addEventListener("click", logout);
   const userBox = document.getElementById("userPrincipal");
   const ogcAPILink = document.getElementById("LinkFeatureAPI");
 
@@ -26,7 +23,6 @@ const init = async () => {
       onSuccess: async() => {},
       onError: () => messageBox.innerText = "LoginError",
       // identityProvider: "https://identity.ic0.app",
-      identityProvider: iProvider,
       maxTimeToLive: 3600000000000 //60 Minute
     });
     checkAuthenticated();
@@ -48,13 +44,14 @@ const init = async () => {
     } else {
       loginButton.disabled = false;
       logoutButton.disabled = true;
-      userBox.innerText = "";     
+      userBox.innerText = "not logged in";     
     }
     // set the correct link to feature API
     const contId = igc_managed_backend.getOgcURL(authClient.getIdentity().getPrincipal(), "", {"html":null}, testlocal);
     contId.catch((error) => {
       messageBox.innerText= error;
-    }); 
+    });
+    // In test environment 
     ogcAPILink.href = await contId;
   };
 
