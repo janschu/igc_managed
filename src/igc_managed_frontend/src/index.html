@@ -16,72 +16,62 @@
     <link type="text/css" rel="stylesheet" href="upload.css" />
   </head>
   <body>
-      <div class="container">
+    <div class="container">
+      <div class="row">
         <!-- Navigation-->
-        <nav class="navbar navbar-expand-lg navbar-light bg-light rounded">
+        <nav class="navbar navbar-expand-md navbar-light bg-light">
           
             <a class="navbar-brand" href="https://github.com/janschu/igc_tools">IC - GliderLog</a>
-            
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMainNav" aria-controls="navbarMainNav" aria-expanded="false" aria-label="Toggle navigation">
-              <span class="navbar-toggler-icon"></span>
-            </button>
-      
+                  
             <div class="collapse navbar-collapse" id="navbarMainNav">
               <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                  <a class="nav-link" id="LinkFeatureAPI" href="OGCFeature.html">OGC API Features</a>
+                  <!-- Can be deleted - moved to the canister section -->
+                  <!-- <a class="nav-link" id="LinkFeatureAPI" href="OGCFeature.html">OGC API Features</a> -->
+                  <a class="nav-link" href="https://github.com/janschu/igc_tools">about</a>
+
                 </li>
               </ul>
               <ul class="navbar-nav">
                 <li class="nav-item">
-                  <button id="loginButton" type="button" class="btn">Login</button>
+                  <button id="loginButton" type="button" class="btn btn-outline-success">Login</button>
                 </li>
                 <li class="nav-item">
-                  <button id="logoutButton" type="button" class="btn">Logout</button>
+                  <button id="logoutButton" type="button" class="btn btn-outline-danger">Logout</button>
                 </li>
               </ul>
             </div>
-
       </nav>
 
-      <div class="row bg-light rounded">
-        <div class="col-2 text">
-          Name: <span id="username"></span>
-        </div>
-        <div class="col-2 text">
-          Principal: <span id="userPrincipal"></span>
-        </div>
-        <div class="col-2 text">
-          Container: <span id="OgcEndpoint"></span>
-        </div>
-        <div class="col-2 text">
-          Management: <span id="ContainerManagement"></span>
-        </div>
-        <div class="col-2"></div>
-        <div class="col-1 text">
-          <button id="stopContainer" type="button" class="btn">Stop Container</button>
-        </div>
-        <div class="col-1 text">
-          <button id="startContainer" type="button" class="btn">Start Container</button>
-        </div>
-        
-        
-      </div>
-    
-      <div class="row">
+      <!-- <div class="row bg-light rounded" id="userDiv"> -->
+      <nav class="navbar navbar-expand-md navbar-light bg-light" id="userDiv">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item px-3"><a class="nav-link" href="https://nns.ic0.app/"><span class="fw-bold" id="userName"></span> (<span id="userPrincipal"></span>)</a></li>
+          <li class="nav-item"><a class="nav-link" id="canisterInfo" href="/">Canister Info</a></li>
+          <li class="nav-item"><a class="nav-link" id="canisterEnpoint" href="/">Canister Endpoint</a></li>
+        </ul>
+        <ul class="navbar-nav">
+          <li><button id="stopContainer" type="button" class="btn btn-outline-danger">Stop</button></li>
+          <li><button id="startContainer" type="button" class="btn btn-outline-success">Start</button></li>
+        </ul> 
+      </nav>
+    </div>
+
+      <div class="row">    
         <div class="col-4 bg-light rounded" >
           <div class="list-group" id="flight-list-group" role="tablist">
-            <div id="fileId"></div>             
+            <div id="fileId" class="p-3"></div>             
           </div>
-          <form id="uploadForm" action="#" class="d-none">
+          <form id="uploadForm" action="#" class="d invisible">
             <div>
               <label for="inputFile" class="form-label">Choose an IGC File</label>
-              <input id="inputFile" class="form-control" type="file"/>
+              <input id="inputFile" class="form-control m-1" type="file"/>
             </div>
-            <button id="submitButton" type="submit" class="btn">Submit</button>
+            <button id="submitButton" type="submit" class="btn btn-outline-success mt-1">Submit</button>
           </form>
         </div>
-        <div class="col-8 p-3 bg-light rounded">
+
+        <div class="col-8 bg-light rounded">
           <div id="FlightMap"/>
         </div>
       </div>
@@ -89,7 +79,7 @@
       
     <section id="message"></section>
     <hr/>
-    <section id="debug"></section>
+    <section id="debug" class="invisible"></section>
 
     </div>
 

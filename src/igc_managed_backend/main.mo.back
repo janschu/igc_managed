@@ -1,0 +1,181 @@
+import types "./types";
+import IC "./ic.types";
+import ogcActor "../lib/ogcAPI/ogcActor";
+
+import TR "../lib/igcData/igcTrack";
+import HTTP "../lib/helper/httpHelper";
+import H "../lib/helper/helper";
+
+import HashMap "mo:base/HashMap";
+import Principal "mo:base/Principal";
+import Debug "mo:base/Debug";
+import Error "mo:base/Error";
+import Cycles "mo:base/ExperimentalCycles";
+import Prelude "mo:base/Prelude";
+import Text "mo:base/Text";
+import Iter "mo:base/Iter";
+import Buffer "mo:base/Buffer";
+import Bool "mo:base/Bool";
+
+
+shared({caller=initializer}) actor class Main() {
+  // initial cycles for newly created container
+  let cycleShare = 1_000_000_000_000;
+    // The main controller
+  private let ic: IC.Self = actor "aaaaa-aa";
+
+  // the canister map manages the owner principal and the according canisters
+  // if a owner principal is set and the canister is null, then a new canister can be generated
+  let canisterMap = HashMap.HashMap <Principal, types.contVal> (0, Principal.equal, Principal.hash);
+  // Testing: unauthorized is allowed
+  canisterMap.put(Principal.fromText("2vxsx-fae"), {name="anonym";ogcCont = null;});
+  canisterMap.put(Principal.fromText("ov6n2-svkcj-ufh3m-fjwuq-x2fof-m4hoz-vl6eu-7oxbw-as6fq-dvc5u-sqe"), {name="Jan";ogcCont = null;}); 
+  // Fixed user:
+
+
+
+  // handle a new IGC File
+  // options:
+  // user principal not registered in canister Map -> do nothing respond error message
+  // user principal registered in canister Map, but canister null -> create a new canister and add igcFile
+  // user principal registered and canister not null -> add igcFile
+  public shared ({caller}) func uploadIGC (owner: Principal, igcText: Text) : async Text {
+
+    Debug.print("Caller: " # Principal.toText(caller));
+    Debug.print("Owner: " # Principal.toText(owner));
+    var msg : Text = "";
+
+    // try to obtain entry from canisterMap
+    let ogcCont : ?types.contVal = canisterMap.get(owner);
+    switch(ogcCont) {
+      // no key
+      case null {
+        throw Error.reject("Upload is not allowed for " # Principal.toText(owner)) ;
+      };
+      // key is present, but value might be null
+      case(?ogcCan){
+        switch(ogcCan.ogcCont){
+          case(null) {
+            Debug.print("must create a new canister for " # Principal.toText(owner));
+            let act : ogcActor.ogcActor = await newCanister(caller,owner);
+            msg #= await act.uploadIGC(igcText);
+          };
+          case(?ogcCanister){
+            Debug.print("can add igc for " # Principal.toText(owner) # " in canister " # Principal.toText(ogcCanister.container));
+            let act: ogcActor.ogcActor = ogcCanister.ogcActor;
+            msg := await act.uploadIGC(igcText);
+          };
+        };
+      };
+    };
+    return msg;
+  };
+
+  public shared ({caller}) func deleteIGC (owner: Principal, trackId: Text) : async Text {
+
+    Debug.print("Caller: " # Principal.toText(caller));
+    Debug.print("Owner: " # Principal.toText(owner));
+    var msg : Text = "";
+
+    // try to obtain entry from canisterMap
+    let ogcCont : ?types.contVal = canisterMap.get(owner);
+    switch(ogcCont) {
+      // no key
+      case null {
+        throw Error.reject("User cannot be found " # Principal.toText(owner)) ;
+      };
+      // key is present, but value might be null
+      case(?ogcCan){
+        switch(ogcCan.ogcCont){
+          case(null) {
+            throw Error.reject("User (" # Principal.toText(owner) # ") is not owner of a canister");
+          };
+          case(?ogcCanister){
+            // delete entry
+            let act: ogcActor.ogcActor = ogcCanister.ogcActor;
+            msg := await act.deleteTrackById(trackId);
+          };
+        };
+      };
+    };
+    return msg;
+  };
+
+  public shared query ({caller}) func getOgcURL (owner: Principal, path: Text, format: H.Representation, local: Bool) : async Text {
+    Debug.print("Calling getOgcURL: " # path);
+    let ogcCont : ?types.contVal = canisterMap.get(owner); 
+    switch(ogcCont) {
+      case null {
+        throw Error.reject("Owner is not registered - Owner:" # Principal.toText(owner)) ;
+      }; 
+      case (?ogcCan) {
+        switch(ogcCan.ogcCont){
+          case(null) {
+            throw Error.reject("Owner is registered, but has no container. Owner: " # Principal.toText(owner));
+          };
+          case(?ogcCanister) {
+            let resp : Text = HTTP.buildUrl (path, ogcCanister.container, local, format);
+            Debug.print (resp);
+            return resp;
+          };
+        };
+      };
+    };
+  };
+
+  // // SLOW!
+  // // Can we use a query instead?
+  // public shared func getTrackList(owner: Principal) : async [TR.Metadata] {
+  //   // try to obtain entry from canisterMap
+  //   let ogcCont : ?types.contVal = canisterMap.get(owner);
+  //   switch(ogcCont) {
+  //     // no key
+  //     case null {
+  //       throw Error.reject("Not a registered owner: " # Principal.toText(owner)) ;
+  //     };
+  //     // key is present, but value might be null
+  //     case(?ogcCan){
+  //       switch(ogcCan.ogcCont){
+  //         case(null) {
+  //           Debug.print("No data for owner: " # Principal.toText(owner));
+  //           return [];
+  //         };
+  //         case(?ogcCanister){
+  //           Debug.print("Get Flights for owner: " # Principal.toText(owner));
+  //           Debug.print("Canister: " # Principal.toText(ogcCanister.container));
+  //           let act: ogcActor.ogcActor = ogcCanister.ogcActor;
+  //           let trackList : [TR.Metadata] = await act.getTrackList();
+  //           return trackList;
+  //         };
+  //       };
+  //     };
+  //   };
+  // };
+
+  // create a new canister with actor
+  // mainly taken from https://medium.com/dfinity/dynamically-create-canister-smart-contracts-in-motoko-d3b38a748c07
+  private func newCanister (caller: Principal, owner: Principal) : async ogcActor.ogcActor {
+    Cycles.add(cycleShare);
+    let ogcAct = await ogcActor.ogcActor(owner); 
+    // the new canister Id
+    let canisterId : Principal= Principal.fromActor(ogcAct);
+    // switch (canisterId) {
+    //   case (null) {
+    //     throw Error.reject("Cannot create a new container");
+    //   };
+    //   case (?canisterId) {
+        let self:Principal = Principal.fromActor(Main);
+        let controllers: ?[Principal] = ?[canisterId, caller, self];
+        await ic.update_settings(({canister_id = canisterId; settings = {
+          controllers = controllers;
+          freezing_threshold = null;
+          memory_allocation = null;
+          compute_allocation = null;
+        }}));
+        let value : types.contVal = {ogcCont=?{container=canisterId;ogcActor=ogcAct;};};
+        canisterMap.put(owner, value);
+        return ogcAct;
+      // }
+    // } 
+  };
+};

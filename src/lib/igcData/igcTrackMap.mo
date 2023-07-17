@@ -78,7 +78,8 @@ module {
         private func updateMetadata(track: TR.Track) {
             metadata := {
                 title = "Glider Flights";
-                description = metadata.description # " / TrackId: " # track.getTrackId();
+                description = "All Flights in one collection";
+                // description = metadata.description # " / TrackId: " # track.getTrackId();
                 id = metadata.id;
                 start = R.toOption(getTemporalStart());
                 land = R.toOption(getTemporalEnd());
