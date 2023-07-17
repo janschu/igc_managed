@@ -11,6 +11,9 @@ import Types "types";
 import H "../lib/helper/helper";
 import HTTP "../lib/helper/httpHelper";
 import IC "./ic.types";
+import Iter "mo:base/Iter";
+import Array "mo:base/Array";
+import Buffer "mo:base/Buffer";
 
 shared({caller=initializer}) actor class Main() {
 
@@ -19,9 +22,22 @@ shared({caller=initializer}) actor class Main() {
     private let ic: IC.Self = actor "aaaaa-aa";
 
     // the registered users
-    private stable var userList: AssocList.AssocList<Principal,Types.UserEntry> = List.nil();
+ //   private stable var userList: AssocList.AssocList<Principal,Types.UserEntry> = List.nil();
+    private var userList: AssocList.AssocList<Principal,Types.UserEntry> = List.nil();
+
     // initializer is allways added as 'admin'
     userList := AssocList.replace<Principal,Types.UserEntry>(userList, initializer, Principal.equal, ?{name = "admin"; role = #admin; cycle_share = 0; ogcCanister = null}).0;
+
+    // TODO
+    // get all principals as list
+    public shared func getUserPrincipalList() : async [Principal] {
+        let it  = List.toIter(userList);
+        let b = Buffer.Buffer <Principal> (1);
+        for (v in it){
+            b.add(v.0);
+        };
+        return Buffer.toArray(b);
+    };
 
     // add a new user - just by the initializer
     // canister is empty by default

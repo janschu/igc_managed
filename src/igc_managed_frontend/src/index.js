@@ -88,27 +88,33 @@ const init = async () => {
     getTracklist();
   };
 
-  async function setUserDiv(user) {
+  async function setUserDiv(prin) {
     try {
-      const userelement = await igc_managed_backend.getUser(user);
-      // if no error
-      //userInfoDiv.className = "row bg-light rounded";
-      userInfoDiv.className = "navbar navbar-expand-md navbar-light bg-light";
-      // canInfoDiv.className = "row bg-light rounded";
-      userPrincipalBox.innerText=user;
-      userNameBox.innerText = userelement.username;  
-      canEndpointLink.href = await igc_managed_backend.getOgcURL(user, "", {"html":null}, testlocal);
-      canInfoLink.href = await igc_managed_backend.getIcpDashboard(user);
-      await setCanisterStatus(user);  
-      uploadFormSection.setAttribute("class", "d visible");
+      const userelement = await igc_managed_backend.getUser(prin);
+      // check the userrole
+      if (JSON.stringify(userelement.userrole) == JSON.stringify({"user":null})) {
+        // show the user section
+        userInfoDiv.className = "navbar navbar-expand-md navbar-light bg-light";
+        userPrincipalBox.innerText=prin;
+        userNameBox.innerText = userelement.username;
+        try {  
+          canEndpointLink.href = await igc_managed_backend.getOgcURL(prin, "", {"html":null}, testlocal);
+          canInfoLink.href = await igc_managed_backend.getIcpDashboard(prin);
+        }
+        catch (error){
+          canEndpointLink.href = "/";
+          canInfoLink.href = "/"; 
+          debugBox.innerText= error; 
+        }
+        await setCanisterStatus(prin);  
+        uploadFormSection.setAttribute("class", "d visible");
+      }
     }
     catch (error) {
       userInfoDiv.className = "d-none";
       uploadFormSection.setAttribute("class", "d invisible");
       debugBox.innerText= error;
-      messageBox.innerText = "User is not registered: " + user;
-      // switch off upload
-
+      messageBox.innerText = "User is not registered";
     }
   }; 
 
@@ -121,7 +127,7 @@ const init = async () => {
         messageBox.innerText = "canister is running";
       } else {
         startContainerButton.disabled = false;
-        stopContainerButton.disabled = true;        
+        stopContainerButton.disabled = true;      
         messageBox.innerText = "canister is stopped" ;
       }
     }
@@ -145,8 +151,6 @@ const init = async () => {
     setCanisterStatus(user);
     getTracklist(event);
   };
-
-
 
 
   // Handler on file input box 
@@ -235,21 +239,94 @@ const init = async () => {
 
   // Call Main.mo getTracklist
   async function getTracklist(event) {
-    
     FileListElement.replaceChildren();
-
     let owner = authClient.getIdentity().getPrincipal();
     // handle the responses/exceptions
     const contId = igc_managed_backend.getOgcURL(owner, "/collections", {"json":null}, testlocal);
+    contId.then(() => {
+      getUsersTracklist(contId, owner, true);
+    });
     contId.catch((error) => {
       debugBox.innerText= error;
-      messageBox.innerText = "User cannot access tracks :" + owner;
-      // reset the list
-      // maybe switch to anonymous list
-      
+      messageBox.innerText = "User does not own tracks: " + owner;
+      getAnomymousTracklist();      
     });
-    // In test environment 
-    const url = await contId;
+  };
+
+  async function getAnomymousTracklist () {
+    debugBox.innerText = "Anonymous List";
+    const principals = await igc_managed_backend.getUserPrincipalList();
+    debugBox.innerText = principals;
+    for (var prin in principals) {
+      // get user name and role
+      try {
+        const user = await igc_managed_backend.getUser (principals[prin]);
+        if (JSON.stringify(user.userrole) == JSON.stringify({"user":null})) {
+          const serverstate = await igc_managed_backend.getCanisterStatus(principals[prin]);
+          if (JSON.stringify(serverstate) == JSON.stringify({"Running":null})) {
+            const canisterButton = document.createElement("button");
+            canisterButton.setAttribute("type", "button");
+            canisterButton.setAttribute("class", "btn btn-outline-primary m-1")
+            canisterButton.setAttribute("data-bs-toggle", "collapse");
+            canisterButton.setAttribute("data-bs-target", "#a-" + principals[prin]);
+            const canisterButtonText = document.createTextNode(user.username);
+            canisterButton.appendChild(canisterButtonText);
+            FileListElement.appendChild(canisterButton);
+
+            // collapsable part
+            const collapseDiv = document.createElement("div");
+            collapseDiv.setAttribute("class", "collapse");
+            collapseDiv.setAttribute("id", "a-"+principals[prin]);
+            
+            // get a simple list of flights
+            try {
+              const url = await igc_managed_backend.getOgcURL(principals[prin], "/collections", {"json":null}, testlocal);
+              // fetch list of datasets
+              const response = await fetch (url);
+              const jsonResp = await response.json();
+              const jsonColl = jsonResp["collections"];
+              // loop tracks
+              for (var item in jsonColl) {
+                const button = document.createElement("button");
+                button.setAttribute("type", "button");
+                button.setAttribute("class", "list-group-item list-group-item-action rounded");
+                button.setAttribute("name", jsonColl[item].id);
+                const contId = igc_managed_backend.getOgcURL(principals[prin], "/collections/" + jsonColl[item].id + "/items", {"json":null}, testlocal);
+                contId.catch((error) => {
+                  debugBox.innerText= error;
+                  messageBox.innerBox = "Error - shall not happen";
+                });
+                const itemsUrl = await contId;
+                button.setAttribute("value", itemsUrl);
+                button.setAttribute("class", "btn btn-outline-primary m-1 rounded col-9");
+                collapseDiv.appendChild(button);
+                const subheading = document.createElement("div");
+                subheading.setAttribute("class", "fw-bold");
+                const subheadingText = document.createTextNode(jsonColl[item].title);
+                subheading.appendChild(subheadingText);
+                button.appendChild(subheading);
+                const buttonText = document.createTextNode(jsonColl[item].description);
+                //const buttonText = document.createTextNode(jsonColl[item].links[0].href);
+                button.appendChild(buttonText);
+                button.addEventListener("click",getTrackAsLine);  
+              }
+            }
+            catch (error) {
+              debugBox.innerText = error;
+            }
+            FileListElement.appendChild(collapseDiv);
+          }
+        }
+      }
+      catch (error) {
+        debugBox.innerText = error;
+        continue;
+      }
+    }
+  };
+
+  async function getUsersTracklist(urlProm, owner, isOwner) {
+    let url = await urlProm;
     messageBox.innerText = "Retrieve Data from OGC endpoint: " +  url;
 
     // fetch list of datasets
@@ -295,12 +372,12 @@ const init = async () => {
       const div = document.createElement("div");
       div.setAttribute("class", "row");
       div.appendChild(button);
-      if (jsonColl[item].id!="FC") {
+      if (jsonColl[item].id!="FC" && isOwner) {
         div.appendChild(delButton);
       };
 
       FileListElement.appendChild(div);
-    };
+    };  
   };
 
   function initMap(event){
@@ -321,8 +398,6 @@ const init = async () => {
   uploadForm.addEventListener("submit", uploadIGC);
   checkAuthenticated();
   initMap();
-  getTracklist();  
-
 };
 
 init();
