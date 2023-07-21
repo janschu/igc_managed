@@ -102,10 +102,6 @@ shared (install) actor class ogcActor (ownerPrincipal : Principal) =
 
 
   // all HTTP handling from motoko mailing list
-  // TODO split IGC Data from OGC representation
-  // fix the base URL
-  // let baseURL : Text = "https://mtlom-hiaaa-aaaah-abtkq-cai.raw.ic0.app";
-
   // Endpoints:
   // / : Landing Page - the service and the endpoint list
   // /conformance: static conformance page
@@ -118,7 +114,7 @@ shared (install) actor class ogcActor (ownerPrincipal : Principal) =
   // TODO: Filter BBOX, DateTime
   public shared query func http_request(request : http.HttpRequest) : async http.HttpResponse {  
     Debug.print("Function HttpRequest");
-    let baseURL = "dummy" # Principal.toText(Principal.fromActor(this));
+    //let baseURL = "dummy" # Principal.toText(Principal.fromActor(this));
     let urlPattern : http.URLPattern = http.parseURL(request);
     
     Debug.print(debug_show(urlPattern));
