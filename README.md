@@ -60,22 +60,22 @@ Additionally there are some helping modules and packages, which might be of inte
 
 - [**htmlHelper**](https://github.com/janschu/igc_managed/blob/master/src/lib/helper/htmlHelper.mo): We also have to generate several dynamic html-pages (according to the OGC API specification). Beside general functions to create generic tags, attributes, text-nodes etc., there are also predefined common tags like *div* or *li* included. 
 
-- [**igcData**](https://github.com/janschu/igc_managed/tree/master/src/lib/igcData): This package comprises some tools to parse [International Gliding Commission Tracks](https://www.fai.org/sites/default/files/igc_fr_specification_2020-11-25_with_al6.pdf) and keep the track data with metadata in a simplified datastructure[^3].
+- [**igcData**](https://github.com/janschu/igc_managed/tree/master/src/lib/igcData): This package comprises some tools to parse [International Gliding Commission Tracks](https://www.fai.org/sites/default/files/igc_fr_specification_2020-11-25_with_al6.pdf) and keep the track data with metadata in a simplified datastructure [^3] .
 
-[^3]Note: Only the track data and some metadata are extracted. Advanced content like flight planning or the GNSS tracker's signature are ignored.
+[^3]: Note: Only the track data and some metadata are extracted. Advanced content like flight planning or the GNSS tracker's signature are ignored.
 
 ## Open issues
 
 The project was **never intended to be productive**.
-The main goal was to gain experiences and have a running demonstrator to further **elaborate potential use cases** of blockchain, smart contracts and Dapps in the **geospatial domain** [^4].
+The main goal was to gain experiences and have a running demonstrator to further **elaborate potential use cases** of blockchain, smart contracts and Dapps in the **geospatial domain** [^4] .
 
-[^4] The project was presented and discussed at [FOSS4G 2023](https://2023.foss4g.org/)
+[^4]: The project was presented and discussed at [FOSS4G 2023](https://2023.foss4g.org/)
 
 **General comments**
 - Complex html responses: The OGC API Features specification mainly describe two types of responses - the html and json responses. Therefore a lot of dynamically created html is needed to build correct responses. Without according libraries, this is quite complex
 and took a lot of development effort [^5]
 
-[^5] The service description is very complex to design from scratch - so there is just a pointer to dummy (https://ogc-api.nrw.de/inspire-lc-zfum/v1/api?f=json) at the moment. Current clients only check the existence of this description.
+[^5]: The service description is very complex to design from scratch - so there is just a pointer to dummy (https://ogc-api.nrw.de/inspire-lc-zfum/v1/api?f=json) at the moment. Current clients only check the existence of this description.
 
 **Issues**
 - Lacking exception handling: There is only limited handling of exceptions - especially the IGC parsing relies on correct format.
