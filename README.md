@@ -29,10 +29,13 @@ Also 'guests' shall use the system. On one hand any 'guest' can access the OGC A
 2. The 'data provider' logs in the management page by using the [Internet Identity](https://identity.ic0.app/). Only registerd users can perform the next steps 3 and 4.
 
 3. The 'data owner' can now upload new IGC tracks. With the first upload of an IGC flight track, a new canister is created containing the application code for data parsing, storing and the OGC API Feautures. All rights are exclusivly granted to the 'data provider'. 
+<img width="895" alt="step3" src="https://github.com/janschu/igc_managed/assets/17230001/b8c8cc61-7fff-4186-b52c-6c280b4b50b2">
 
 4. The 'data owner' can now use the management page to simplify the handling of data and his/her server, e.g. simpple buttons and links are included to 'start canister', 'stop canister', 'upload track' and 'delete track'. Furthermore, the canister specific linkts to the 'OGC API Features' endpoint and to the [Nervous Network System - main page](https://nns.ic0.app/accounts/) are provided.
+<img width="895" alt="step4" src="https://github.com/janschu/igc_managed/assets/17230001/46bd8b27-8e39-421f-a06d-f8e9b19563d5">
 
 5. 'Guest' use the management page as simple web mapping application. They can list the flight data of all 'data providers' and visualise the tracks. 
+<img width="896" alt="step5" src="https://github.com/janschu/igc_managed/assets/17230001/47d5db23-4f8a-40da-af57-4c86b1008e5f">
 
 ### Components
 
