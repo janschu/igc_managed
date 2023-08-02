@@ -22,11 +22,11 @@ Also 'guests' shall use the system. On one hand any 'guest' can access the OGC A
 [^1]: By default [OGC API Features](https://www.ogc.org/standard/ogcapi-features/) is open - without any access control
 
 ### Steps
-1. The 'service provider' grants the 'data owner' the right to use the system by entering the principal (see [Internet Identity(https://identity.ic0.app/)]) of the 'data owner' and an initial amount of processing 'cycles' (see [cycles](https://internetcomputer.org/docs/current/concepts/tokens-cycles)) to the management page[^2].
+1. The 'service provider' grants the 'data owner' the right to use the system by entering the principal (see [Internet Identity](https://identity.ic0.app/)) of the 'data owner' and an initial amount of processing 'cycles' (see [cycles](https://internetcomputer.org/docs/current/concepts/tokens-cycles)) to the management page[^2].
 
 [^2]: This registering process might support different business processes for the 'service provider' to cover development and maintenance cost of the source code as well as the initial setup and fueling of the canisters.
 
-2. The 'data provider' logs in the management page by using the [Internet Identity(https://identity.ic0.app/)]. Only registerd users can perform the next steps 3 and 4.
+2. The 'data provider' logs in the management page by using the [Internet Identity](https://identity.ic0.app/). Only registerd users can perform the next steps 3 and 4.
 
 3. The 'data owner' can now upload new IGC tracks. With the first upload of an IGC flight track, a new canister is created containing the application code for data parsing, storing and the OGC API Feautures. All rights are exclusivly granted to the 'data provider'. 
 
